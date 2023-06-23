@@ -2,14 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { getTransactionSender } from '@mysten/sui.js';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { type Direction } from 'react-resizable-panels';
 
-import { ErrorBoundary } from '../../../components/error-boundary/ErrorBoundary';
-import PkgModulesWrapper from '../../../components/module/PkgModulesWrapper';
-import { useGetTransaction } from '../../../hooks/useGetTransaction';
-import { getOwnerStr } from '../../../utils/objectUtils';
-import { trimStdLibPrefix } from '../../../utils/stringUtils';
 import { type DataType } from '../ObjectResultType';
 
 import styles from './ObjectView.module.css';
@@ -17,10 +12,16 @@ import styles from './ObjectView.module.css';
 import TransactionBlocksForAddress, {
 	FILTER_VALUES,
 } from '~/components/TransactionBlocksForAddress/TransactionBlocksForAddress';
+import { ErrorBoundary } from '~/components/error-boundary/ErrorBoundary';
+import PkgModulesWrapper from '~/components/module/PkgModulesWrapper';
+import VerifyRegister from '~/components/module/VerifyRegister';
+import { useGetTransaction } from '~/hooks/useGetTransaction';
 import { AddressLink, ObjectLink } from '~/ui/InternalLink';
 import { LoadingSpinner } from '~/ui/LoadingSpinner';
 import { RadioGroup, RadioOption } from '~/ui/Radio';
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '~/ui/Tabs';
+import { getOwnerStr } from '~/utils/objectUtils';
+import { trimStdLibPrefix } from '~/utils/stringUtils';
 
 const GENESIS_TX_DIGEST = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=';
 
@@ -29,7 +30,7 @@ const splitPanelsOrientation: { label: string; value: Direction }[] = [
 	{ label: 'SIDE-BY-SIDE', value: 'horizontal' },
 ];
 
-function PkgView({ data }: { data: DataType }) {
+function PkgView({ data, codes, verified, setVerified }: { data, codes, verified, setVerified: DataType }) {
 	const [selectedSplitPanelOrientation, setSplitPanelOrientation] = useState(
 		splitPanelsOrientation[1].value,
 	);
@@ -94,7 +95,12 @@ function PkgView({ data }: { data: DataType }) {
 				<TabGroup size="lg">
 					<TabList>
 						<div className="mt-16 flex w-full justify-between">
-							<Tab>Modules</Tab>
+							<div>
+								<Tab>Modules</Tab>
+								<Tab style={{ marginLeft: '20px' }}>
+									Code Verification {verified ? <sup>✔︎</sup> : null}
+								</Tab>
+							</div>
 							<div>
 								<RadioGroup
 									className="hidden gap-0.5 md:flex"
@@ -115,7 +121,20 @@ function PkgView({ data }: { data: DataType }) {
 								<PkgModulesWrapper
 									id={data.id}
 									modules={properties}
+									codes={codes}
+									verified={verified}
 									splitPanelOrientation={selectedSplitPanelOrientation}
+								/>
+							</ErrorBoundary>
+						</TabPanel>
+						<TabPanel noGap>
+							<ErrorBoundary>
+								<VerifyRegister
+									id={data.id}
+									modules={properties}
+									codes={codes}
+									verified={verified}
+									setVerified={setVerified}
 								/>
 							</ErrorBoundary>
 						</TabPanel>

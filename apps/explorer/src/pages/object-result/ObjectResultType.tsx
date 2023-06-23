@@ -11,9 +11,10 @@ import {
 	getObjectDisplay,
 } from '@mysten/sui.js';
 
-import { parseObjectType } from '../../utils/objectUtils';
-
 import type { SuiObjectResponse, ObjectOwner } from '@mysten/sui.js';
+
+import { type Codes } from '~/components/module/PkgModulesWrapper';
+import { parseObjectType } from '~/utils/objectUtils';
 
 export type DataType = {
 	id: string;
@@ -35,6 +36,9 @@ export type DataType = {
 	};
 	loadState?: string;
 	display?: Record<string, string>;
+	codes?: Codes;
+	verified?: boolean;
+	setVerified?: Function;
 };
 
 /**
