@@ -54,8 +54,11 @@ export function ObjectResult() {
 		if (!data) {
 			return;
 		}
-		const moduleName = Object.keys(data.data.content.disassembled)[0];
-		const packageId = data.data.objectId;
+		// @ts-ignore
+		// eslint-disable-next-line no-unsafe-optional-chaining
+		const { disassembled } = data.data?.content;
+		const moduleName = Object.keys(disassembled)[0];
+		const packageId = data.data?.objectId;
 		console.log(packageId, moduleName);
 
 		wdsBack('GET', 'verification/sui/verify-check', null, {
@@ -123,6 +126,11 @@ export function ObjectResult() {
 
 	const resp = translate(data);
 	const isPackage = resp.objType === PACKAGE_TYPE_NAME;
+	Object.assign(resp, {
+		codes,
+		verified,
+		setVerified,
+	});
 
 	return (
 		<div className="mb-10">
@@ -131,7 +139,7 @@ export function ObjectResult() {
 			<ErrorBoundary>
 				<div className="mt-10">
 					{isPackage ? (
-						<PkgView data={resp} codes={codes} verified={verified} setVerified={setVerified} />
+						<PkgView data={resp} />
 					) : (
 						<TokenView data={data} />
 					)}

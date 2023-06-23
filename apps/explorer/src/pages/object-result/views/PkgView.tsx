@@ -13,7 +13,7 @@ import TransactionBlocksForAddress, {
 	FILTER_VALUES,
 } from '~/components/TransactionBlocksForAddress/TransactionBlocksForAddress';
 import { ErrorBoundary } from '~/components/error-boundary/ErrorBoundary';
-import PkgModulesWrapper from '~/components/module/PkgModulesWrapper';
+import PkgModulesWrapper, {Codes, ModuleType} from '~/components/module/PkgModulesWrapper';
 import VerifyRegister from '~/components/module/VerifyRegister';
 import { useGetTransaction } from '~/hooks/useGetTransaction';
 import { AddressLink, ObjectLink } from '~/ui/InternalLink';
@@ -30,7 +30,7 @@ const splitPanelsOrientation: { label: string; value: Direction }[] = [
 	{ label: 'SIDE-BY-SIDE', value: 'horizontal' },
 ];
 
-function PkgView({ data, codes, verified, setVerified }: { data, codes, verified, setVerified: DataType }) {
+function PkgView({ data }: { data: DataType }) {
 	const [selectedSplitPanelOrientation, setSplitPanelOrientation] = useState(
 		splitPanelsOrientation[1].value,
 	);
@@ -51,7 +51,7 @@ function PkgView({ data, codes, verified, setVerified }: { data, codes, verified
 
 	const checkIsPropertyType = (value: any) => ['number', 'string'].includes(typeof value);
 
-	const properties = Object.entries(viewedData.data?.contents)
+	const properties: ModuleType[] = Object.entries(viewedData.data?.contents)
 		.filter(([key, _]) => key !== 'name')
 		.filter(([_, value]) => checkIsPropertyType(value));
 
@@ -98,7 +98,7 @@ function PkgView({ data, codes, verified, setVerified }: { data, codes, verified
 							<div>
 								<Tab>Modules</Tab>
 								<Tab style={{ marginLeft: '20px' }}>
-									Code Verification {verified ? <sup>✔︎</sup> : null}
+									Code Verification {data.verified ? <sup>✔︎</sup> : null}
 								</Tab>
 							</div>
 							<div>
@@ -121,8 +121,8 @@ function PkgView({ data, codes, verified, setVerified }: { data, codes, verified
 								<PkgModulesWrapper
 									id={data.id}
 									modules={properties}
-									codes={codes}
-									verified={verified}
+									codes={data.codes}
+									verified={data.verified}
 									splitPanelOrientation={selectedSplitPanelOrientation}
 								/>
 							</ErrorBoundary>
@@ -132,9 +132,9 @@ function PkgView({ data, codes, verified, setVerified }: { data, codes, verified
 								<VerifyRegister
 									id={data.id}
 									modules={properties}
-									codes={codes}
-									verified={verified}
-									setVerified={setVerified}
+									codes={data.codes}
+									verified={data.verified}
+									setVerified={data.setVerified}
 								/>
 							</ErrorBoundary>
 						</TabPanel>

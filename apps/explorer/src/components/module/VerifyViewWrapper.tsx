@@ -7,8 +7,8 @@ interface VerifyViewWrapperProps {
 	id?: string;
 	selectedModuleName: string;
 	modules: ModuleType[];
-	codes: Codes;
-	verified: boolean;
+	codes?: Codes;
+	verified?: boolean;
 }
 
 function VerifyViewWrapper({
@@ -24,7 +24,7 @@ function VerifyViewWrapper({
 	}
 	const [name] = selectedModuleData;
 
-	const code = codes.codes.find((element) => {
+	const code = codes?.codes.find((element: any) => {
 		if (element.name.includes(name)) {
 			return true;
 		}

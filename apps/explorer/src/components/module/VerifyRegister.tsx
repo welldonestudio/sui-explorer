@@ -33,8 +33,8 @@ interface VerifyRegisterProps {
 	id?: string;
 	modules?: ModuleType[];
 	codes?: Codes;
-	verified: boolean;
-	setVerified?: Function;
+	verified?: boolean;
+	setVerified?: any;
 }
 interface VerifyRes {
 	packageId?: string;
@@ -49,7 +49,10 @@ function VerifyRegister({ id, modules, codes, verified, setVerified }: VerifyReg
 	const modulenames = modules?.map(([name]) => name);
 	const [searchParams, setSearchParams] = useSearchParamsMerged();
 	const [query, setQuery] = useState('');
-	// @ts-ignore
+	if (!modulenames) {
+		return null;
+	}
+
 	const selectedModule =
 		searchParams.get('module') && modulenames?.includes(searchParams.get('module')!)
 			? searchParams.get('module')!
@@ -146,12 +149,15 @@ function VerifyRegister({ id, modules, codes, verified, setVerified }: VerifyReg
 			: modules
 					?.filter(([name]) => name.toLowerCase().includes(query.toLowerCase()))
 					.map(([name]) => name);
+	if (!filteredModules) {
+		return null;
+	}
 	const onFileChange = (files: File[]) => {
 		console.log('onFileChange files', files);
 		setFiles(files);
 	};
 	const submitSearch = useCallback(() => {
-		if (filteredModules.length === 1) {
+		if (filteredModules?.length === 1) {
 			setSearchParams({
 				module: filteredModules[0],
 			});
@@ -163,15 +169,6 @@ function VerifyRegister({ id, modules, codes, verified, setVerified }: VerifyReg
 		});
 	};
 	return (
-		// <div className="flex items-center gap-1 truncate break-words text-body font-medium leading-relaxed text-steel-dark">
-		// <div className="min-w-0 basis-full break-words md:basis-2/3">
-		// <div className="block w-full truncate break-words">
-		// text-issue-dark text-steel-dark text-bodySmall text-body text-subtitle
-		/*
-    <Tooltip tip="Transaction sent at RGP will process promptly during regular network operations">
-        <Info12 className="h-3.5 w-3.5" />
-    </Tooltip>
-     */
 		<div className="flex flex-col gap-5 border-b border-gray-45 md:flex-row md:flex-nowrap">
 			<div className="w-full md:w-1/5">
 				<Combobox value={selectedModule} onChange={onChangeModule}>
