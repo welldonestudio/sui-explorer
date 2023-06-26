@@ -36,9 +36,6 @@ export type DataType = {
 	};
 	loadState?: string;
 	display?: Record<string, string>;
-	codes?: Codes;
-	verified?: boolean;
-	setVerified?: Function;
 };
 
 /**

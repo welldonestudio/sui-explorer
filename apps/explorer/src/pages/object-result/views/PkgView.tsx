@@ -30,7 +30,7 @@ const splitPanelsOrientation: { label: string; value: Direction }[] = [
 	{ label: 'SIDE-BY-SIDE', value: 'horizontal' },
 ];
 
-function PkgView({ data }: { data: DataType }) {
+function PkgView({ data, codes, verified, setVerified }: { data: DataType; codes: Codes; verified: boolean; setVerified: Function }) {
 	const [selectedSplitPanelOrientation, setSplitPanelOrientation] = useState(
 		splitPanelsOrientation[1].value,
 	);
@@ -98,7 +98,7 @@ function PkgView({ data }: { data: DataType }) {
 							<div>
 								<Tab>Modules</Tab>
 								<Tab style={{ marginLeft: '20px' }}>
-									Code Verification {data.verified ? <sup>✔︎</sup> : null}
+									Code Verification {verified ? <sup>✔︎</sup> : null}
 								</Tab>
 							</div>
 							<div>
@@ -121,8 +121,8 @@ function PkgView({ data }: { data: DataType }) {
 								<PkgModulesWrapper
 									id={data.id}
 									modules={properties}
-									codes={data.codes}
-									verified={data.verified}
+									codes={codes}
+									verified={verified}
 									splitPanelOrientation={selectedSplitPanelOrientation}
 								/>
 							</ErrorBoundary>
@@ -132,9 +132,9 @@ function PkgView({ data }: { data: DataType }) {
 								<VerifyRegister
 									id={data.id}
 									modules={properties}
-									codes={data.codes}
-									verified={data.verified}
-									setVerified={data.setVerified}
+									codes={codes}
+									verified={verified}
+									setVerified={setVerified}
 								/>
 							</ErrorBoundary>
 						</TabPanel>
