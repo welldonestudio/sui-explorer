@@ -11,8 +11,10 @@ import { useNetwork } from '~/context';
 import { useWdsBackend } from '~/hooks/useWdsBackend';
 import { Button } from '~/ui/Button';
 import { Link } from '~/ui/Link';
+import { Text } from '~/ui/Text';
 import { ListItem, VerticalList } from '~/ui/VerticalList';
 import { useSearchParamsMerged } from '~/ui/utils/LinkWithQuery';
+import { numberSuffix } from '~/utils/numberUtil';
 export interface LatestModule {
 	account: string;
 	chainId: string;
@@ -49,6 +51,9 @@ function VerifyRegister({ id, modules, codes, verified, setVerified }: VerifyReg
 	const modulenames = modules?.map(([name]) => name);
 	const [searchParams, setSearchParams] = useSearchParamsMerged();
 	const [query, setQuery] = useState('');
+	const [version, setVersion] = useState<string>('');
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const isExecuteDisabled = isLoading || version === '';
 	if (!modulenames) {
 		return null;
 	}
@@ -65,6 +70,7 @@ function VerifyRegister({ id, modules, codes, verified, setVerified }: VerifyReg
 	const remixHref = 'https://remix.ethereum.org/';
 
 	const verifyWithoutFile = () => {
+		setIsLoading(true);
 		console.log(`
         verifyWithoutFiles [Button Clicked]
         network: ${network}
@@ -79,6 +85,7 @@ function VerifyRegister({ id, modules, codes, verified, setVerified }: VerifyReg
 			const data = res as LatestModule;
 			fetch(data.srcUrl).then((resFile) => {
 				if (!resFile.ok) {
+					setIsLoading(false);
 					throw new Error('Network response was not ok');
 				}
 				resFile.arrayBuffer().then((arrayBuffer) => {
@@ -103,6 +110,7 @@ function VerifyRegister({ id, modules, codes, verified, setVerified }: VerifyReg
 							console.log('verifyRes', verifyRes);
 							// @ts-ignore
 							setVerified(verifyRes.isVerified);
+							setIsLoading(false);
 						});
 					});
 				});
@@ -237,63 +245,101 @@ function VerifyRegister({ id, modules, codes, verified, setVerified }: VerifyReg
 							</div>
 						) : (
 							<>
-								<div className="text-subtitleMedium mb-4 mt-1 break-words">
+								<div className="text-subtitleMedium mb-2 mt-1 break-words">
 									❗<span className="font-bold">Not yet verified.</span>
 								</div>
-								<div className="mb-0.5 break-words text-issue-dark">
-									If this code is deployed using{' '}
-									<Link
-										variant="text"
-										color="steel-darker"
-										href={welldoneCodeHref}
-										target="_blank"
-										rel="noopener noreferrer"
-									>
-										<span className="underline">WELLDONE Code</span>
-									</Link>{' '}
-									and{' '}
-									<Link
-										variant="text"
-										color="steel-darker"
-										href={remixHref}
-										target="_blank"
-										rel="noopener noreferrer"
-									>
-										<span className="underline">remix plugin ( CODE BY WELLDONE STUDIO )</span>
-									</Link>
-									, you can proceed verification without uploading a file.
-								</div>
-								<Button size="md" onClick={verifyWithoutFile} variant="outline">
-									Verify without file.
-								</Button>
+								<div className="flex items-center gap-4">
+									<Text variant="body/medium" color="steel-dark">
+										Please select Compiler Version :
+									</Text>
 
-								<div className="mb-0.5 mt-7 break-words text-issue-dark">
-									Otherwise You can proceed verification with uploading a file{' '}
-									<span className="font-medium">(a zip file)</span>.
+									<select
+										className="form-select rounded-md border border-gray-45 px-3 py-2 pr-8 text-bodySmall font-medium leading-[1.2] text-steel-dark shadow-button"
+										value={version}
+										onChange={(e) => {
+											console.log(e.target.value, typeof e.target.value);
+											setVersion(e.target.value);
+										}}
+									>
+										<option value="">[Please Select]</option>
+										<option value="v1.3.1">v1.3.1+commit.a2af559</option>
+										<option value="v1.3.0">v1.3.0+commit.434eb19</option>
+										<option value="v1.2.1">v1.2.1+commit.8b68151</option>
+										<option value="v1.2.0">v1.2.0+commit.7ef210c</option>
+										<option value="v1.1.1">v1.1.1+commit.536412e</option>
+										<option value="v1.1.0">v1.1.0+commit.4c9993f</option>
+										<option value="v1.0.8">v1.0.8+commit.97d65f2</option>
+									</select>
 								</div>
-								<FileUpload value={files} maxFiles={1} onChange={onFileChange} />
-								<div className="mb-1 ml-1 mt-2 break-words text-body font-medium">
-									1. Run this command "zip -r your_source.zip ." at the same directory path of
-									"Move.toml".
-								</div>
-								<div className="mb-2 ml-1 break-words text-body font-medium">
-									2. Drag the zip file above upload box.
+								{/*<div className="mb-0.5 mt-3 break-words text-issue-dark">*/}
+								<div className="mb-2 mt-5">
+									<Text variant="body/medium" color="steel-dark">
+										If this code is deployed using{' '}
+										<Link
+											variant="text"
+											color="steel-darker"
+											href={welldoneCodeHref}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											<span className="underline">WELLDONE Code</span>
+										</Link>{' '}
+										and{' '}
+										<Link
+											variant="text"
+											color="steel-darker"
+											href={remixHref}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											<span className="underline">remix plugin ( CODE BY WELLDONE STUDIO )</span>
+										</Link>
+										, you can proceed verification without uploading a file.
+									</Text>
 								</div>
 								<Button
+									variant="primary"
 									size="md"
-									onClick={verifyWithFile}
-									variant="outline"
-									disabled={files.length === 0}
+									disabled={isExecuteDisabled}
+									loading={isLoading}
+									onClick={verifyWithoutFile}
 								>
-									Verify with a zip file.
+									Verify without file
 								</Button>
-								<div className="ml-1 mt-5 break-words text-body font-medium">
+
+								<div className="mb-1 mt-7">
+									<Text variant="body/medium" color="steel-dark">
+										Otherwise You can proceed verification with uploading a file <b>(a zip file).</b>
+									</Text>
+								</div>
+								<FileUpload value={files} maxFiles={1} onChange={onFileChange} />
+								<div className="mb-1 ml-1 mt-2">
+									<Text variant="body/medium" color="gray-100">
+										1. Run this command &ldquo;zip -r your_source.zip .&rdquo; at the same directory
+										path of &ldquo;Move.toml&rdquo;.
+									</Text>
+								</div>
+								<div className="mb-2 ml-1">
+									<Text variant="body/medium" color="gray-100">
+										2. Drag the zip file above upload box.
+									</Text>
+								</div>
+								<Button
+									variant="primary"
+									size="md"
+									disabled={files.length === 0 || isExecuteDisabled}
+									loading={isLoading}
+									onClick={verifyWithFile}
+								>
+									Verify with a zip file
+								</Button>
+								{/*<div className="ml-1 mt-5 break-words text-body font-medium">
 									Network: {network.toLowerCase()}
 								</div>
 								<div className="ml-1 break-words text-body font-medium">Package ID: {id}</div>
 								<div className="ml-1 break-words text-body font-medium">
 									Module: {selectedModule}
-								</div>
+								</div>*/}
 							</>
 						)}
 					</>

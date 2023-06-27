@@ -4,7 +4,7 @@
 import { ModuleType } from '~/components/module/PkgModulesWrapper';
 import { shortenPackageId } from '~/components/module/utils';
 import { ObjectLink } from '~/ui/InternalLink';
-import React from "react";
+import React from 'react';
 
 interface Props {
 	id?: string;
@@ -54,32 +54,32 @@ function DependencyView({ id, modules, versionInfo, selectedModuleName }: Props)
 			</div>
 			{selectedModule?.dependencies?.map((dependency, idx) => (
 				<div key={idx} className="mb-6">
-					<div className="title whitespace-nowrap font-medium">
+					<div className="whitespace-nowrap text-body font-bold">
 						Package ID : <ObjectLink objectId={shortenPackageId(dependency.packageId)} noTruncate target='_blank' />
 					</div>
 					{dependency.upgradeCapId ? (
-						<div className="title whitespace-nowrap break-words">
+						<div className="whitespace-nowrap text-body">
 							UpgradeCap ID : <ObjectLink objectId={shortenPackageId(dependency.upgradeCapId)} noTruncate target='_blank' />
 						</div>
 					) : (
-						<div className="title whitespace-nowrap break-words">
+						<div className="whitespace-nowrap text-body">
 							UpgradeCap ID : <span style={{ color: 'orangered' }}>Deleted</span>
 						</div>
 					)}
 					{/*<div className="text-subtitleMedium">Current</div>*/}
 					<div className="title">Current</div>
-					<li className="whitespace-nowrap break-words text-body font-medium">
+					<li className="whitespace-nowrap text-body font-medium">
 						Package ID : <ObjectLink objectId={shortenPackageId(dependency?.current?.packageId)} noTruncate target='_blank' />
 					</li>
-					<li className="whitespace-nowrap break-words text-body font-medium">
+					<li className="whitespace-nowrap text-body font-medium">
 						Version : <span style={{ color: 'blue' }}>{dependency?.current?.version}</span>
 					</li>
 					{/*<div className="text-body font-bold">Latest</div>*/}
 					<div className="title">Latest</div>
-					<li className="whitespace-nowrap break-words text-body font-medium">
+					<li className="whitespace-nowrap text-body font-medium">
 						Package ID : <ObjectLink objectId={shortenPackageId(dependency?.latest?.packageId)} noTruncate target='_blank' />
 					</li>
-					<li className="whitespace-nowrap break-words text-body font-medium">
+					<li className="whitespace-nowrap text-body font-medium">
 						Version :{' '}
 						{dependency?.current?.version === dependency?.latest?.version ? (
 							<span style={{ color: 'blue' }}>{dependency?.latest?.version}</span>
