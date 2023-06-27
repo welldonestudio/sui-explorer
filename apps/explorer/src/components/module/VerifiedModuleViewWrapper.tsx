@@ -3,7 +3,7 @@
 import ModuleView from '~/components/module/ModuleView';
 import { type Codes, type ModuleType } from '~/components/module/PkgModulesWrapper';
 
-interface VerifyViewWrapperProps {
+interface VerifiedModuleViewWrapperProps {
 	id?: string;
 	selectedModuleName: string;
 	modules: ModuleType[];
@@ -11,13 +11,13 @@ interface VerifyViewWrapperProps {
 	verified?: boolean;
 }
 
-function VerifyViewWrapper({
+function VerifiedModuleViewWrapper({
 	id,
 	selectedModuleName,
 	modules,
 	codes,
 	verified,
-}: VerifyViewWrapperProps) {
+}: VerifiedModuleViewWrapperProps) {
 	const selectedModuleData = modules.find(([name]) => name === selectedModuleName);
 	if (!selectedModuleData) {
 		return null;
@@ -25,14 +25,13 @@ function VerifyViewWrapper({
 	const [name] = selectedModuleData;
 
 	const code = codes?.codes.find((element: any) => {
-		if (element.name.includes(name)) {
+		if (element.content.includes(`::${name}`)) {
 			return true;
 		}
 	});
-	console.log('VerifyViewWrapper code', code);
 
 	return verified ? (
-		<ModuleView id={id} name={name} code={code.content} />
+		<ModuleView id={id} name={name} code={code?.content} />
 	) : (
 		<div className="text-subtitleMedium mb-4 mt-2 break-words">
 			❗<span className="font-bold">Not yet verified.</span>
@@ -40,4 +39,4 @@ function VerifyViewWrapper({
 	);
 }
 
-export default VerifyViewWrapper;
+export default VerifiedModuleViewWrapper;

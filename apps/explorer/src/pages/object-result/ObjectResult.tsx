@@ -18,6 +18,7 @@ import { useWdsBackend } from '~/hooks/useWdsBackend';
 import { Banner } from '~/ui/Banner';
 import { LoadingSpinner } from '~/ui/LoadingSpinner';
 import { PageHeader } from '~/ui/PageHeader';
+import {VersionInfo} from "~/components/module/DependencyView";
 
 const PACKAGE_TYPE_NAME = 'Move Package';
 
@@ -34,20 +35,11 @@ export function ObjectResult() {
 
 	const { id: objID } = useParams();
 	const { data, isLoading, isError, isFetched } = useGetObject(objID!);
-	console.log(
-		'ObjectResult',
-		data,
-		' isLoading',
-		isLoading,
-		' isError',
-		isError,
-		' isFetched',
-		isFetched,
-	);
 	const wdsBack = useWdsBackend();
 	const [codes, setCodes] = useState<Codes>({
-		codes: [''],
+		codes: [],
 	});
+	const [versionInfo, setVersionInfo] = useState<VersionInfo>();
 	const [verified, setVerified] = useState(false);
 
 	useEffect(() => {
@@ -59,13 +51,15 @@ export function ObjectResult() {
 		const { disassembled } = data.data?.content;
 		const moduleName = Object.keys(disassembled)[0];
 		const packageId = data.data?.objectId;
-		console.log(packageId, moduleName);
 
 		wdsBack('GET', 'verification/sui/verify-check', null, {
 			chainId: network.toLowerCase(),
 			packageId: packageId,
 		}).then((res) => {
 			const verifyCheckObj = res as VerifyCheck;
+			if (!verifyCheckObj.isVerified) {
+				return;
+			}
 			wdsBack('GET', 'sui-deploy-histories/latest-module', null, {
 				chainId: network.toLowerCase(),
 				packageId: packageId,
@@ -76,6 +70,7 @@ export function ObjectResult() {
 					if (!resFile.ok) {
 						throw new Error('Network response was not ok');
 					}
+
 					resFile.arrayBuffer().then((arrayBuffer) => {
 						const blob = new Blob([arrayBuffer], { type: 'application/zip' });
 						const zip = new JSZip();
@@ -91,6 +86,7 @@ export function ObjectResult() {
 							});
 
 							Promise.all(filePromises).then((codes) => {
+								console.log('codes', codes);
 								setCodes({
 									codes: codes.filter((code) => {
 										if (!code.name.includes('Move.toml' || 'Move.lock')) {
@@ -104,6 +100,13 @@ export function ObjectResult() {
 					});
 				});
 			});
+		});
+
+		wdsBack('GET', 'dependency-version-check/sui', null, {
+			network: network.toLowerCase(),
+			packageId: packageId,
+		}).then((res) => {
+			setVersionInfo(res as VersionInfo);
 		});
 	}, [data]);
 
@@ -134,7 +137,7 @@ export function ObjectResult() {
 			<ErrorBoundary>
 				<div className="mt-10">
 					{isPackage ? (
-						<PkgView data={resp} codes={codes} verified={verified} setVerified={setVerified} />
+						<PkgView data={resp} codes={codes} verified={verified} setVerified={setVerified} versionInfo={versionInfo} />
 					) : (
 						<TokenView data={data} />
 					)}

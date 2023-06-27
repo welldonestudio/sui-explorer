@@ -153,7 +153,6 @@ function VerifyRegister({ id, modules, codes, verified, setVerified }: VerifyReg
 		return null;
 	}
 	const onFileChange = (files: File[]) => {
-		console.log('onFileChange files', files);
 		setFiles(files);
 	};
 	const submitSearch = useCallback(() => {

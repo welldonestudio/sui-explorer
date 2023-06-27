@@ -10,14 +10,15 @@ import { type Direction } from 'react-resizable-panels';
 import ModuleView from './ModuleView';
 import { ModuleFunctionsInteraction } from './module-functions-interaction';
 
-import VerifyViewWrapper from '~/components/module/VerifyViewWrapper';
+import DependencyView, { type VersionInfo } from '~/components/module/DependencyView';
+import VerifiedModuleViewWrapper from '~/components/module/VerifiedModuleViewWrapper';
 import { useBreakpoint } from '~/hooks/useBreakpoint';
 import { SplitPanes } from '~/ui/SplitPanes';
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '~/ui/Tabs';
 import { ListItem, VerticalList } from '~/ui/VerticalList';
 import { useSearchParamsMerged } from '~/ui/utils/LinkWithQuery';
 
-export type ModuleType = [moduleName: string, code: string | any];
+export type ModuleType = [moduleName: string, code: string];
 export interface Codes {
 	codes: Array<any>;
 }
@@ -27,6 +28,7 @@ interface Props {
 	modules: ModuleType[];
 	codes?: Codes;
 	verified?: boolean;
+	versionInfo?: VersionInfo;
 	splitPanelOrientation: Direction;
 }
 
@@ -48,9 +50,14 @@ function ModuleViewWrapper({ id, selectedModuleName, modules }: ModuleViewWrappe
 	return <ModuleView id={id} name={name} code={code} />;
 }
 
-function PkgModuleViewWrapper({ id, modules, codes, verified, splitPanelOrientation }: Props) {
-	console.log('PkgModuleViewWrapper modules', modules, codes);
-
+function PkgModuleViewWrapper({
+	id,
+	modules,
+	codes,
+	verified,
+	versionInfo,
+	splitPanelOrientation,
+}: Props) {
 	const isMediumOrAbove = useBreakpoint('md');
 
 	const modulenames = modules.map(([name]) => name);
@@ -100,6 +107,7 @@ function PkgModuleViewWrapper({ id, modules, codes, verified, splitPanelOrientat
 						<TabList>
 							<Tab>Bytecode</Tab>
 							<Tab>Code {verified ? <sup>✅</sup> : null}</Tab>
+							<Tab>Dependencies</Tab>
 						</TabList>
 						<TabPanels>
 							<TabPanel>
@@ -125,11 +133,27 @@ function PkgModuleViewWrapper({ id, modules, codes, verified, splitPanelOrientat
 											'h-verticalListLong',
 									)}
 								>
-									<VerifyViewWrapper
+									<VerifiedModuleViewWrapper
 										id={id}
 										modules={modules}
 										codes={codes}
 										verified={verified}
+										selectedModuleName={selectedModule}
+									/>
+								</div>
+							</TabPanel>
+							<TabPanel>
+								<div
+									className={clsx(
+										'overflow-auto',
+										(splitPanelOrientation === 'horizontal' || !isMediumOrAbove) &&
+											'h-verticalListLong',
+									)}
+								>
+									<DependencyView
+										id={id}
+										modules={modules}
+										versionInfo={versionInfo}
 										selectedModuleName={selectedModule}
 									/>
 								</div>

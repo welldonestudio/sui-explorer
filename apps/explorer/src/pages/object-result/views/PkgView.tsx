@@ -13,7 +13,11 @@ import TransactionBlocksForAddress, {
 	FILTER_VALUES,
 } from '~/components/TransactionBlocksForAddress/TransactionBlocksForAddress';
 import { ErrorBoundary } from '~/components/error-boundary/ErrorBoundary';
-import PkgModulesWrapper, {Codes, ModuleType} from '~/components/module/PkgModulesWrapper';
+import { type VersionInfo } from '~/components/module/DependencyView';
+import PkgModulesWrapper, {
+	type Codes,
+	type ModuleType,
+} from '~/components/module/PkgModulesWrapper';
 import VerifyRegister from '~/components/module/VerifyRegister';
 import { useGetTransaction } from '~/hooks/useGetTransaction';
 import { AddressLink, ObjectLink } from '~/ui/InternalLink';
@@ -30,7 +34,7 @@ const splitPanelsOrientation: { label: string; value: Direction }[] = [
 	{ label: 'SIDE-BY-SIDE', value: 'horizontal' },
 ];
 
-function PkgView({ data, codes, verified, setVerified }: { data: DataType; codes: Codes; verified: boolean; setVerified: Function }) {
+function PkgView({ data, codes, verified, setVerified, versionInfo }: { data: DataType; codes: Codes; verified: boolean; setVerified: Function; versionInfo?: VersionInfo }) {
 	const [selectedSplitPanelOrientation, setSplitPanelOrientation] = useState(
 		splitPanelsOrientation[1].value,
 	);
@@ -123,6 +127,7 @@ function PkgView({ data, codes, verified, setVerified }: { data: DataType; codes
 									modules={properties}
 									codes={codes}
 									verified={verified}
+									versionInfo={versionInfo}
 									splitPanelOrientation={selectedSplitPanelOrientation}
 								/>
 							</ErrorBoundary>

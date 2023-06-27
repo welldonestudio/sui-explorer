@@ -57,3 +57,10 @@ export function getNormalizedFunctionParameterTypeDetails(
 		paramTypeText,
 	};
 }
+
+export function shortenPackageId(packageId: string | undefined) {
+	if (!packageId) {
+		return '';
+	}
+	return packageId.replace('0'.repeat(63), '');
+}
