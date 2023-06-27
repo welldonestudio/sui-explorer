@@ -13,7 +13,7 @@ process.env.VITE_VERCEL_ENV = process.env.VERCEL_ENV || 'development';
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [react(), svgr(), pluginRewriteAll()],
-	// base: 'sui-explorer',
+	base: '/sui-explorer/',
 	test: {
 		// Omit end-to-end tests:
 		exclude: [...configDefaults.exclude, 'tests/**'],
