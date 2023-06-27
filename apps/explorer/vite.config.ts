@@ -23,7 +23,7 @@ export default defineConfig({
 	},
 	build: {
 		// Set the output directory to match what CRA uses:
-		outDir: 'build',
+		outDir: '../../docs', // for github pages
 		sourcemap: true,
 	},
 	resolve: {
