@@ -46,10 +46,6 @@ export function ObjectResult() {
 		if (!data) {
 			return;
 		}
-		// @ts-ignore
-		// eslint-disable-next-line no-unsafe-optional-chaining
-		const { disassembled } = data.data?.content;
-		const moduleName = Object.keys(disassembled)[0];
 		const packageId = data.data?.objectId;
 
 		wdsBack('GET', 'verification/sui/verify-check', null, {
