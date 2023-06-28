@@ -9,6 +9,9 @@ import { CopyToClipboard } from '~/ui/CopyToClipboard';
 import { ObjectLink } from '~/ui/InternalLink';
 import { Tooltip } from '~/ui/Tooltip';
 import { ReactComponent as InfoSvg } from '~/ui/icons/info_10x10.svg';
+import {DisclosureBox} from "~/ui/DisclosureBox";
+import {InputsCard} from "~/pages/transaction-result/programmable-transaction-view/InputsCard";
+import {DependenciesCard} from "~/pages/object-result/views/DependenciesCard";
 
 interface Props {
 	id?: string;
@@ -32,16 +35,11 @@ export interface DependencyModule {
 export interface Dependency {
 	packageId: string;
 	upgradeCapId?: string;
-	current?: Current;
-	latest?: Latest;
+	current?: SmallPackageInfo;
+	latest?: SmallPackageInfo;
 }
 
-export interface Current {
-	packageId: string;
-	version: number;
-}
-
-export interface Latest {
+export interface SmallPackageInfo {
 	packageId: string;
 	version: number;
 }
@@ -52,11 +50,14 @@ function DependencyView({ id, modules, versionInfo, selectedModuleName }: Props)
 	);
 	return (
 		<>
-			<div className="title mb-4 break-words font-medium">
+			<div className="title mb-2 ml-2 mt-1 break-words font-medium">
 				Module( <b>{selectedModuleName}</b> ) has <b>{selectedModule?.dependencies?.length}</b>{' '}
 				{selectedModule?.dependencies?.length === 1 ? <>dependency.</> : <>dependencies.</>}
 			</div>
-			{selectedModule?.dependencies?.map((dependency, idx) => (
+			<div data-testid="dependencies-card" className="flex items-stretch">
+				<DependenciesCard inputs={selectedModule?.dependencies} defaultOpen />
+			</div>
+			{/*{selectedModule?.dependencies?.map((dependency, idx) => (
 				<div key={idx} className="mb-6">
 					<div className="whitespace-nowrap text-body font-bold">
 						Package ID : <ObjectLink objectId={shortenPackageId(dependency.packageId)} noTruncate />{' '}
@@ -73,7 +74,7 @@ function DependencyView({ id, modules, versionInfo, selectedModuleName }: Props)
 							UpgradeCap ID : <span style={{ color: 'orangered' }}>Deleted</span>
 						</div>
 					)}
-					{/*<div className="text-subtitleMedium">Current</div>*/}
+					<div className="text-subtitleMedium">Current</div>
 					<div className="title flex items-center gap-1">
 						Current
 						<Tooltip
@@ -95,7 +96,7 @@ function DependencyView({ id, modules, versionInfo, selectedModuleName }: Props)
 					<li className="whitespace-nowrap text-body font-medium">
 						Version : <span style={{ color: 'blue' }}>{dependency?.current?.version}</span>
 					</li>
-					{/*<div className="text-body font-bold">Latest</div>*/}
+					<div className="text-body font-bold">Latest</div>
 					<div className="title flex items-center gap-1">
 						Latest
 						<Tooltip
@@ -125,7 +126,7 @@ function DependencyView({ id, modules, versionInfo, selectedModuleName }: Props)
 						)}
 					</li>
 				</div>
-			))}
+			))}*/}
 		</>
 	);
 }
