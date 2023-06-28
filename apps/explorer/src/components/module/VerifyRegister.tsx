@@ -69,12 +69,6 @@ function VerifyRegister({ id, modules, verified, setVerified }: VerifyRegisterPr
 
 	const verifyWithoutFile = () => {
 		setIsLoadingWithoutFile(true);
-		console.log(`
-        verifyWithoutFiles
-        network: ${network}
-        package ID: ${id}
-        Module: ${selectedModule}
-        `);
 		wdsBack('GET', 'verification/sui/package-remix', null, {
 			chainId: network.toLowerCase(),
 			packageId: id,
@@ -92,16 +86,6 @@ function VerifyRegister({ id, modules, verified, setVerified }: VerifyRegisterPr
 	};
 	const verifyWithFile = () => {
 		setIsLoadingWithFile(true);
-		console.log(
-			`
-        verifyWithFile [Button Clicked]
-        network: ${network}
-        package ID: ${id}
-        Module: ${selectedModule}
-        File: ${files.length}
-        `,
-			files[0],
-		);
 		const curDate = new Date();
 		const body = {
 			chainName: CHAIN_NAME,
@@ -126,12 +110,12 @@ function VerifyRegister({ id, modules, verified, setVerified }: VerifyRegisterPr
 						setIsLoadingWithFile(false);
 					})
 					.catch((e) => {
-						console.error('verification/sui/package error', e);
+						console.error(e);
 						setIsLoadingWithFile(false);
 					});
 			})
 			.catch((e) => {
-				console.error('s3Proxy/verification-src/sui error', e);
+				console.error(e);
 				setIsLoadingWithFile(false);
 			});
 	};
@@ -241,7 +225,6 @@ function VerifyRegister({ id, modules, verified, setVerified }: VerifyRegisterPr
 										className="form-select rounded-md border border-gray-45 px-3 py-2 pr-8 text-bodySmall font-medium leading-[1.2] text-steel-dark shadow-button"
 										value={version}
 										onChange={(e) => {
-											console.log(e.target.value, typeof e.target.value);
 											setVersion(e.target.value);
 										}}
 									>
