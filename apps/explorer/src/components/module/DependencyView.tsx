@@ -59,22 +59,13 @@ function DependencyView({ id, modules, versionInfo, selectedModuleName }: Props)
 			{selectedModule?.dependencies?.map((dependency, idx) => (
 				<div key={idx} className="mb-6">
 					<div className="whitespace-nowrap text-body font-bold">
-						Package ID :{' '}
-						<ObjectLink
-							objectId={shortenPackageId(dependency.packageId)}
-							noTruncate
-							target="_blank"
-						/>{' '}
+						Package ID : <ObjectLink objectId={shortenPackageId(dependency.packageId)} noTruncate />{' '}
 						<CopyToClipboard size="md" color="steel" copyText={dependency.packageId} />
 					</div>
 					{dependency.upgradeCapId ? (
 						<div className="whitespace-nowrap text-body">
 							UpgradeCap ID :{' '}
-							<ObjectLink
-								objectId={shortenPackageId(dependency.upgradeCapId)}
-								noTruncate
-								target="_blank"
-							/>{' '}
+							<ObjectLink objectId={shortenPackageId(dependency.upgradeCapId)} noTruncate />{' '}
 							<CopyToClipboard size="md" color="steel" copyText={dependency.upgradeCapId} />
 						</div>
 					) : (
@@ -85,17 +76,16 @@ function DependencyView({ id, modules, versionInfo, selectedModuleName }: Props)
 					{/*<div className="text-subtitleMedium">Current</div>*/}
 					<div className="title flex items-center gap-1">
 						Current
-						<Tooltip tip="This is the current information of the package this module is referencing." isInline>
+						<Tooltip
+							tip="This is the current information of the package this module is referencing."
+							isInline
+						>
 							<InfoSvg />
 						</Tooltip>
 					</div>
 					<li className="whitespace-nowrap text-body font-medium">
 						Package ID :{' '}
-						<ObjectLink
-							objectId={shortenPackageId(dependency?.current?.packageId)}
-							noTruncate
-							target="_blank"
-						/>{' '}
+						<ObjectLink objectId={shortenPackageId(dependency?.current?.packageId)} noTruncate />{' '}
 						<CopyToClipboard
 							size="md"
 							color="steel"
@@ -108,17 +98,16 @@ function DependencyView({ id, modules, versionInfo, selectedModuleName }: Props)
 					{/*<div className="text-body font-bold">Latest</div>*/}
 					<div className="title flex items-center gap-1">
 						Latest
-						<Tooltip tip="This is the latest information of the package this module is referencing." isInline>
+						<Tooltip
+							tip="This is the latest information of the package this module is referencing."
+							isInline
+						>
 							<InfoSvg />
 						</Tooltip>
 					</div>
 					<li className="whitespace-nowrap text-body font-medium">
 						Package ID :{' '}
-						<ObjectLink
-							objectId={shortenPackageId(dependency?.latest?.packageId)}
-							noTruncate
-							target="_blank"
-						/>{' '}
+						<ObjectLink objectId={shortenPackageId(dependency?.latest?.packageId)} noTruncate />{' '}
 						{dependency?.latest?.packageId ? (
 							<CopyToClipboard
 								size="md"

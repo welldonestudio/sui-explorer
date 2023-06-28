@@ -14,22 +14,11 @@ import { Link } from '~/ui/Link';
 import { Text } from '~/ui/Text';
 import { ListItem, VerticalList } from '~/ui/VerticalList';
 import { useSearchParamsMerged } from '~/ui/utils/LinkWithQuery';
-import { numberSuffix } from '~/utils/numberUtil';
-export interface LatestModule {
-	account: string;
-	chainId: string;
-	compileTimestamp: string;
-	deployTimestamp: string;
-	module: string;
-	packageId: string;
-	packageName: string;
-	srcUrl: string;
-	txHash: string;
-}
-export interface VerifyCheck {
+export interface VerifyCheckResponse {
 	chainId: string;
 	packageId: string;
 	isVerified: boolean;
+	verifiedSrcUrl: string;
 }
 interface VerifyRegisterProps {
 	id?: string;
@@ -38,22 +27,31 @@ interface VerifyRegisterProps {
 	verified?: boolean;
 	setVerified?: any;
 }
-interface VerifyRes {
-	packageId?: string;
-	moduleName?: string;
-	requestedTime?: string;
+interface VerificationResponse {
+	chainId: string;
+	packageId: string;
+	isVerified: boolean;
+	moduleResults: ModuleResult[];
+}
+interface ModuleResult {
+	packageId: string;
+	moduleName: string;
+	requestedTime: number;
 	isVerified: boolean;
 	onChainByteCode: string;
 	offChainByteCode: string;
 }
 
-function VerifyRegister({ id, modules, codes, verified, setVerified }: VerifyRegisterProps) {
+const CHAIN_NAME = 'sui';
+
+function VerifyRegister({ id, modules, verified, setVerified }: VerifyRegisterProps) {
 	const modulenames = modules?.map(([name]) => name);
 	const [searchParams, setSearchParams] = useSearchParamsMerged();
 	const [query, setQuery] = useState('');
 	const [version, setVersion] = useState<string>('');
-	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const isExecuteDisabled = isLoading || version === '';
+	const [isLoadingWithoutFile, setIsLoadingWithoutFile] = useState<boolean>(false);
+	const [isLoadingWithFile, setIsLoadingWithFile] = useState<boolean>(false);
+	const isExecuteDisabled = isLoadingWithoutFile || isLoadingWithFile || version === '';
 	if (!modulenames) {
 		return null;
 	}
@@ -70,54 +68,30 @@ function VerifyRegister({ id, modules, codes, verified, setVerified }: VerifyReg
 	const remixHref = 'https://remix.ethereum.org/';
 
 	const verifyWithoutFile = () => {
-		setIsLoading(true);
+		setIsLoadingWithoutFile(true);
 		console.log(`
-        verifyWithoutFiles [Button Clicked]
+        verifyWithoutFiles
         network: ${network}
         package ID: ${id}
         Module: ${selectedModule}
         `);
-		wdsBack('GET', 'sui-deploy-histories/latest-module', null, {
+		wdsBack('GET', 'verification/sui/package-remix', null, {
 			chainId: network.toLowerCase(),
 			packageId: id,
-			module: selectedModule,
-		}).then((res) => {
-			const data = res as LatestModule;
-			fetch(data.srcUrl).then((resFile) => {
-				if (!resFile.ok) {
-					setIsLoading(false);
-					throw new Error('Network response was not ok');
-				}
-				resFile.arrayBuffer().then((arrayBuffer) => {
-					const blob = new Blob([arrayBuffer], { type: 'application/zip' });
-					const curDate = new Date();
-					const body = {
-						chainName: 'sui',
-						chainId: network.toLowerCase(),
-						compilerVersion: '1.0.8',
-						packageId: id,
-						timestamp: curDate.getTime().toString(),
-						fileType: 'move',
-						zipFile: blob,
-					};
-					wdsBack('POST', 's3Proxy/verification-src/sui', body).then(() => {
-						wdsBack('GET', 'verification/sui', null, {
-							chainId: network.toLowerCase(),
-							packageId: id,
-							moduleName: selectedModule,
-							timestamp: curDate.getTime().toString(),
-						}).then((verifyRes: VerifyRes | unknown) => {
-							console.log('verifyRes', verifyRes);
-							// @ts-ignore
-							setVerified(verifyRes.isVerified);
-							setIsLoading(false);
-						});
-					});
-				});
+		})
+			.then((res) => {
+				const verificationRes = res as VerificationResponse;
+				console.log('verificationRes', verificationRes);
+				setVerified(verificationRes.isVerified);
+				setIsLoadingWithoutFile(false);
+			})
+			.catch((e) => {
+				console.error(e);
+				setIsLoadingWithoutFile(false);
 			});
-		});
 	};
 	const verifyWithFile = () => {
+		setIsLoadingWithFile(true);
 		console.log(
 			`
         verifyWithFile [Button Clicked]
@@ -130,26 +104,36 @@ function VerifyRegister({ id, modules, codes, verified, setVerified }: VerifyReg
 		);
 		const curDate = new Date();
 		const body = {
-			chainName: 'sui',
+			chainName: CHAIN_NAME,
 			chainId: network.toLowerCase(),
-			compilerVersion: '1.0.8',
+			compilerVersion: version,
 			packageId: id,
 			timestamp: curDate.getTime().toString(),
 			fileType: 'move',
 			zipFile: files[0],
 		};
-		wdsBack('POST', 's3Proxy/verification-src/sui', body).then(() => {
-			wdsBack('GET', 'verification/sui', null, {
-				chainId: network.toLowerCase(),
-				packageId: id,
-				moduleName: selectedModule,
-				timestamp: curDate.getTime().toString(),
-			}).then((verifyRes: VerifyRes | unknown) => {
-				console.log('verifyRes', verifyRes);
-				// @ts-ignore
-				setVerified(verifyRes.isVerified);
+		wdsBack('POST', 's3Proxy/verification-src/sui', body)
+			.then(() => {
+				wdsBack('GET', 'verification/sui/package', null, {
+					chainId: network.toLowerCase(),
+					packageId: id,
+					timestamp: curDate.getTime().toString(),
+				})
+					.then((res) => {
+						const verificationRes = res as VerificationResponse;
+						console.log('verificationRes', verificationRes);
+						setVerified(verificationRes.isVerified);
+						setIsLoadingWithFile(false);
+					})
+					.catch((e) => {
+						console.error('verification/sui/package error', e);
+						setIsLoadingWithFile(false);
+					});
+			})
+			.catch((e) => {
+				console.error('s3Proxy/verification-src/sui error', e);
+				setIsLoadingWithFile(false);
 			});
-		});
 	};
 	const filteredModules =
 		query === ''
@@ -301,7 +285,7 @@ function VerifyRegister({ id, modules, codes, verified, setVerified }: VerifyReg
 									variant="primary"
 									size="md"
 									disabled={isExecuteDisabled}
-									loading={isLoading}
+									loading={isLoadingWithoutFile}
 									onClick={verifyWithoutFile}
 								>
 									Verify without file
@@ -309,7 +293,8 @@ function VerifyRegister({ id, modules, codes, verified, setVerified }: VerifyReg
 
 								<div className="mb-1 mt-7">
 									<Text variant="body/medium" color="steel-dark">
-										Otherwise You can proceed verification with uploading a file <b>(a zip file).</b>
+										Otherwise You can proceed verification with uploading a file{' '}
+										<b>(a zip file).</b>
 									</Text>
 								</div>
 								<FileUpload value={files} maxFiles={1} onChange={onFileChange} />
@@ -327,8 +312,8 @@ function VerifyRegister({ id, modules, codes, verified, setVerified }: VerifyReg
 								<Button
 									variant="primary"
 									size="md"
-									disabled={files.length === 0 || isExecuteDisabled}
-									loading={isLoading}
+									disabled={isExecuteDisabled || files.length === 0}
+									loading={isLoadingWithFile}
 									onClick={verifyWithFile}
 								>
 									Verify with a zip file

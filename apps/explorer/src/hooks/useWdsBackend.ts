@@ -14,13 +14,7 @@ export function useWdsBackend() {
 			queryString?: Record<string, any>,
 			options?: RequestInit,
 		): Promise<T | undefined> => {
-			console.log('method', method, 'path', path, 'options', options);
-			if (body) {
-				console.log('body', body);
-			}
-			if (queryString) {
-				console.log('queryString', queryString);
-			}
+			console.log(method, path, queryString, body);
 			if (method === 'GET') {
 				const query = new URLSearchParams(queryString);
 				const res = await fetch(`${url}/${path}?${query}`, options);
@@ -37,8 +31,6 @@ export function useWdsBackend() {
 					},
 					body,
 				};
-				console.log('url', url, 'path', path);
-				console.log('requestOptions', requestOptions);
 				let res: AxiosResponse = await axios.post(`${url}/${path}`, body, {
 					headers: {
 						'Content-Type': 'multipart/form-data',
@@ -48,7 +40,6 @@ export function useWdsBackend() {
 				if (res.status !== 201) {
 					throw new Error('Unexpected response');
 				}
-				console.log('res', res);
 			}
 		},
 		[],

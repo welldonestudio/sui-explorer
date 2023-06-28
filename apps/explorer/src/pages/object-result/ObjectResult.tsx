@@ -12,13 +12,13 @@ import { TokenView } from './views/TokenView';
 
 import { ErrorBoundary } from '~/components/error-boundary/ErrorBoundary';
 import { type Codes } from '~/components/module/PkgModulesWrapper';
-import { type LatestModule, type VerifyCheck } from '~/components/module/VerifyRegister';
+import { type VerifyCheckResponse } from '~/components/module/VerifyRegister';
 import { useNetwork } from '~/context';
 import { useWdsBackend } from '~/hooks/useWdsBackend';
 import { Banner } from '~/ui/Banner';
 import { LoadingSpinner } from '~/ui/LoadingSpinner';
 import { PageHeader } from '~/ui/PageHeader';
-import {VersionInfo} from "~/components/module/DependencyView";
+import { VersionInfo } from '~/components/module/DependencyView';
 
 const PACKAGE_TYPE_NAME = 'Move Package';
 
@@ -56,46 +56,39 @@ export function ObjectResult() {
 			chainId: network.toLowerCase(),
 			packageId: packageId,
 		}).then((res) => {
-			const verifyCheckObj = res as VerifyCheck;
+			const verifyCheckObj = res as VerifyCheckResponse;
 			if (!verifyCheckObj.isVerified) {
 				return;
 			}
-			wdsBack('GET', 'sui-deploy-histories/latest-module', null, {
-				chainId: network.toLowerCase(),
-				packageId: packageId,
-				module: moduleName,
-			}).then((res) => {
-				const data = res as LatestModule;
-				fetch(data.srcUrl).then((resFile) => {
-					if (!resFile.ok) {
-						throw new Error('Network response was not ok');
-					}
+			fetch(verifyCheckObj.verifiedSrcUrl).then((resFile) => {
+				if (!resFile.ok) {
+					throw new Error('Network response was not ok');
+				}
 
-					resFile.arrayBuffer().then((arrayBuffer) => {
-						const blob = new Blob([arrayBuffer], { type: 'application/zip' });
-						const zip = new JSZip();
-						zip.loadAsync(blob).then((unzipped) => {
-							const filePromises: any = [];
-							unzipped.forEach((relativePath: any, file: any) => {
-								if (!file.dir) {
-									const filePromise = file
-										.async('text')
-										.then((content: any) => ({ name: file.name, content: content }));
-									filePromises.push(filePromise);
-								}
-							});
+				resFile.arrayBuffer().then((arrayBuffer) => {
+					const blob = new Blob([arrayBuffer], { type: 'application/zip' });
+					const zip = new JSZip();
+					zip.loadAsync(blob).then((unzipped) => {
+						const filePromises: any = [];
+						unzipped.forEach((relativePath: any, file: any) => {
+							if (!file.dir) {
+								const filePromise = file
+									.async('text')
+									.then((content: any) => ({ name: file.name, content: content }));
+								filePromises.push(filePromise);
+							}
+						});
 
-							Promise.all(filePromises).then((codes) => {
-								console.log('codes', codes);
-								setCodes({
-									codes: codes.filter((code) => {
-										if (!code.name.includes('Move.toml' || 'Move.lock')) {
-											return code;
-										}
-									}),
-								});
-								setVerified(verifyCheckObj.isVerified);
+						Promise.all(filePromises).then((codes) => {
+							console.log('verified codes', codes);
+							setCodes({
+								codes: codes.filter((code) => {
+									if (!code.name.includes('Move.toml' || 'Move.lock')) {
+										return code;
+									}
+								}),
 							});
+							setVerified(verifyCheckObj.isVerified);
 						});
 					});
 				});

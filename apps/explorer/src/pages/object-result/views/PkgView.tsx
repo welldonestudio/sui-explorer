@@ -137,7 +137,6 @@ function PkgView({ data, codes, verified, setVerified, versionInfo }: { data: Da
 								<VerifyRegister
 									id={data.id}
 									modules={properties}
-									codes={codes}
 									verified={verified}
 									setVerified={setVerified}
 								/>
