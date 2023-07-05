@@ -43,6 +43,9 @@ export function ObjectResult() {
 	const [verified, setVerified] = useState(false);
 
 	useEffect(() => {
+		setVerified(false);
+		setCodes({ codes: [] });
+
 		if (!data) {
 			return;
 		}

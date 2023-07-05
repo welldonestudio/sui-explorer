@@ -324,8 +324,7 @@ function VerifyRegister({ id, modules, setCodes, verified, setVerified }: Verify
 
 								<div className="mb-1 mt-7">
 									<Text variant="body/medium" color="steel-dark">
-										Otherwise You can proceed verification with uploading a file{' '}
-										<b>(a zip file).</b>
+										Otherwise You can proceed verification with uploading a compressed file.
 									</Text>
 								</div>
 								<FileUpload value={files} maxFiles={1} onChange={onFileChange} />
