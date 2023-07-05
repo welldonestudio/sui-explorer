@@ -14,7 +14,7 @@ import { Link } from '~/ui/Link';
 import { Text } from '~/ui/Text';
 import { ListItem, VerticalList } from '~/ui/VerticalList';
 import { useSearchParamsMerged } from '~/ui/utils/LinkWithQuery';
-import JSZip from "jszip";
+import JSZip from 'jszip';
 export interface VerifyCheckResponse {
 	chainId: string;
 	packageId: string;
@@ -352,13 +352,6 @@ function VerifyRegister({ id, modules, setCodes, verified, setVerified }: Verify
 								<Text variant="pBodySmall/medium" color="issue">
 									{errMsgWithFile}
 								</Text>
-								{/*<div className="ml-1 mt-5 break-words text-body font-medium">
-									Network: {network.toLowerCase()}
-								</div>
-								<div className="ml-1 break-words text-body font-medium">Package ID: {id}</div>
-								<div className="ml-1 break-words text-body font-medium">
-									Module: {selectedModule}
-								</div>*/}
 							</>
 						)}
 					</>

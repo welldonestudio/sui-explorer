@@ -26,8 +26,11 @@ function SmallCardSection({ title, smallPackageInfo }: SmallCardSectionProps) {
 				{Object.entries(smallPackageInfo).map(([key, value]) => {
 					let renderValue;
 					const stringValue = String(value);
-					if (key === 'packageId') {
+
+					if (key === 'packageId' && value) {
 						renderValue = <ObjectLink objectId={stringValue} />;
+					} else if (!value) {
+						renderValue = '-';
 					} else {
 						renderValue = stringValue;
 					}
@@ -59,6 +62,7 @@ export function DependenciesCard({
 	if (!inputs?.length) {
 		return null;
 	}
+	let packageId = '';
 
 	const expandableItems = inputs.map((input, index) => (
 		<TransactionBlockCardSection
@@ -72,9 +76,18 @@ export function DependenciesCard({
 					const stringValue = String(value);
 
 					if (key === 'packageId') {
+						packageId = stringValue;
 						renderValue = <ObjectLink objectId={stringValue} />;
-					} else if (key === 'upgradeCapId' && value) {
-						renderValue = <ObjectLink objectId={stringValue} />;
+					} else if (key === 'upgradeCapId') {
+						if (value) {
+							renderValue = <ObjectLink objectId={stringValue} />;
+						} else {
+							if (packageId.includes('0'.repeat(63))) {
+								renderValue = '-';
+							} else {
+								renderValue = 'Deleted';
+							}
+						}
 					} else if (key === 'current' || key === 'latest') {
 						renderValue = (
 							<SmallCardSection title={key} smallPackageInfo={value as SmallPackageInfo} />
