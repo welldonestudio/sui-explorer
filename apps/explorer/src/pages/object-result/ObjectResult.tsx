@@ -97,7 +97,7 @@ export function ObjectResult() {
 		}).then((res) => {
 			setVersionInfo(res as VersionInfo);
 		});
-	}, [data]);
+	}, [verified, data]);
 
 	if (isLoading) {
 		return (
@@ -126,7 +126,14 @@ export function ObjectResult() {
 			<ErrorBoundary>
 				<div className="mt-10">
 					{isPackage ? (
-						<PkgView data={resp} codes={codes} verified={verified} setVerified={setVerified} versionInfo={versionInfo} />
+						<PkgView
+							data={resp}
+							codes={codes}
+							verified={verified}
+							setVerified={setVerified}
+							setCodes={setCodes}
+							versionInfo={versionInfo}
+						/>
 					) : (
 						<TokenView data={data} />
 					)}

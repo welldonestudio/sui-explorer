@@ -34,7 +34,21 @@ const splitPanelsOrientation: { label: string; value: Direction }[] = [
 	{ label: 'SIDE-BY-SIDE', value: 'horizontal' },
 ];
 
-function PkgView({ data, codes, verified, setVerified, versionInfo }: { data: DataType; codes: Codes; verified: boolean; setVerified: Function; versionInfo?: VersionInfo }) {
+function PkgView({
+	data,
+	codes,
+	verified,
+	setVerified,
+	setCodes,
+	versionInfo,
+}: {
+	data: DataType;
+	codes: Codes;
+	verified: boolean;
+	setVerified: Function;
+	setCodes: Function;
+	versionInfo?: VersionInfo;
+}) {
 	const [selectedSplitPanelOrientation, setSplitPanelOrientation] = useState(
 		splitPanelsOrientation[1].value,
 	);
@@ -139,6 +153,7 @@ function PkgView({ data, codes, verified, setVerified, versionInfo }: { data: Da
 									modules={properties}
 									verified={verified}
 									setVerified={setVerified}
+									setCodes={setCodes}
 								/>
 							</ErrorBoundary>
 						</TabPanel>

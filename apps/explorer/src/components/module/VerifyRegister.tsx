@@ -14,6 +14,7 @@ import { Link } from '~/ui/Link';
 import { Text } from '~/ui/Text';
 import { ListItem, VerticalList } from '~/ui/VerticalList';
 import { useSearchParamsMerged } from '~/ui/utils/LinkWithQuery';
+import JSZip from "jszip";
 export interface VerifyCheckResponse {
 	chainId: string;
 	packageId: string;
@@ -24,6 +25,7 @@ interface VerifyRegisterProps {
 	id?: string;
 	modules?: ModuleType[];
 	codes?: Codes;
+	setCodes?: Function;
 	verified?: boolean;
 	setVerified?: any;
 }
@@ -44,7 +46,7 @@ interface ModuleResult {
 
 const CHAIN_NAME = 'sui';
 
-function VerifyRegister({ id, modules, verified, setVerified }: VerifyRegisterProps) {
+function VerifyRegister({ id, modules, setCodes, verified, setVerified }: VerifyRegisterProps) {
 	const modulenames = modules?.map(([name]) => name);
 	const [searchParams, setSearchParams] = useSearchParamsMerged();
 	const [query, setQuery] = useState('');
@@ -108,6 +110,35 @@ function VerifyRegister({ id, modules, verified, setVerified }: VerifyRegisterPr
 						console.log('verificationRes', verificationRes);
 						setVerified(verificationRes.isVerified);
 						setIsLoadingWithFile(false);
+
+						// todo: remove
+						files[0].arrayBuffer().then((arrayBuffer) => {
+							const blob = new Blob([arrayBuffer], { type: 'application/zip' });
+							const zip = new JSZip();
+							zip.loadAsync(blob).then((unzipped) => {
+								const filePromises: any = [];
+								unzipped.forEach((relativePath: any, file: any) => {
+									if (!file.dir) {
+										const filePromise = file
+											.async('text')
+											.then((content: any) => ({ name: file.name, content: content }));
+										filePromises.push(filePromise);
+									}
+								});
+
+								Promise.all(filePromises).then((codes) => {
+									console.log('verified codes', codes);
+									// @ts-ignore
+									setCodes({
+										codes: codes.filter((code) => {
+											if (!code.name.includes('Move.toml' || 'Move.lock')) {
+												return code;
+											}
+										}),
+									});
+								});
+							});
+						});
 					})
 					.catch((e) => {
 						console.error(e);
