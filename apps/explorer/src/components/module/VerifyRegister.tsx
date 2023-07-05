@@ -34,6 +34,7 @@ interface VerificationResponse {
 	packageId: string;
 	isVerified: boolean;
 	moduleResults: ModuleResult[];
+	errMsg?: string;
 }
 interface ModuleResult {
 	packageId: string;
@@ -53,6 +54,8 @@ function VerifyRegister({ id, modules, setCodes, verified, setVerified }: Verify
 	const [version, setVersion] = useState<string>('');
 	const [isLoadingWithoutFile, setIsLoadingWithoutFile] = useState<boolean>(false);
 	const [isLoadingWithFile, setIsLoadingWithFile] = useState<boolean>(false);
+	const [errMsgWithoutFile, setErrMsgWithoutFile] = useState<string>('');
+	const [errMsgWithFile, setErrMsgWithFile] = useState<string>('');
 	const isExecuteDisabled = isLoadingWithoutFile || isLoadingWithFile || version === '';
 	if (!modulenames) {
 		return null;
@@ -80,10 +83,14 @@ function VerifyRegister({ id, modules, setCodes, verified, setVerified }: Verify
 				console.log('verificationRes', verificationRes);
 				setVerified(verificationRes.isVerified);
 				setIsLoadingWithoutFile(false);
+				if (verificationRes.errMsg) {
+					setErrMsgWithoutFile(verificationRes.errMsg);
+				}
 			})
 			.catch((e) => {
 				console.error(e);
 				setIsLoadingWithoutFile(false);
+				setErrMsgWithoutFile(e.toString());
 			});
 	};
 	const verifyWithFile = () => {
@@ -110,6 +117,11 @@ function VerifyRegister({ id, modules, setCodes, verified, setVerified }: Verify
 						console.log('verificationRes', verificationRes);
 						setVerified(verificationRes.isVerified);
 						setIsLoadingWithFile(false);
+
+						if (verificationRes.errMsg) {
+							setErrMsgWithFile(verificationRes.errMsg);
+							return;
+						}
 
 						// todo: remove
 						files[0].arrayBuffer().then((arrayBuffer) => {
@@ -143,11 +155,13 @@ function VerifyRegister({ id, modules, setCodes, verified, setVerified }: Verify
 					.catch((e) => {
 						console.error(e);
 						setIsLoadingWithFile(false);
+						setErrMsgWithFile(e.toString());
 					});
 			})
 			.catch((e) => {
 				console.error(e);
 				setIsLoadingWithFile(false);
+				setErrMsgWithFile(e.toString());
 			});
 	};
 	const filteredModules =
@@ -304,6 +318,9 @@ function VerifyRegister({ id, modules, setCodes, verified, setVerified }: Verify
 								>
 									Verify without file
 								</Button>
+								<Text variant="pBodySmall/medium" color="issue">
+									{errMsgWithoutFile}
+								</Text>
 
 								<div className="mb-1 mt-7">
 									<Text variant="body/medium" color="steel-dark">
@@ -332,6 +349,9 @@ function VerifyRegister({ id, modules, setCodes, verified, setVerified }: Verify
 								>
 									Verify with a zip file
 								</Button>
+								<Text variant="pBodySmall/medium" color="issue">
+									{errMsgWithFile}
+								</Text>
 								{/*<div className="ml-1 mt-5 break-words text-body font-medium">
 									Network: {network.toLowerCase()}
 								</div>
