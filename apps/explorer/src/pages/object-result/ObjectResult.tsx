@@ -40,12 +40,10 @@ export function ObjectResult() {
 		codes: [],
 	});
 	const [versionInfo, setVersionInfo] = useState<VersionInfo>();
-	const [verified, setVerified] = useState(false);
+	const [verified, setVerified] = useState<boolean>(false);
 
 	useEffect(() => {
-		setVerified(false);
-		setCodes({ codes: [] });
-
+		console.log('@@@@@@ useEffect codes', codes, 'verified', verified);
 		if (!data) {
 			return;
 		}
@@ -56,7 +54,10 @@ export function ObjectResult() {
 			packageId: packageId,
 		}).then((res) => {
 			const verifyCheckObj = res as VerifyCheckResponse;
+			console.log('verifyCheckObj', verifyCheckObj);
 			if (!verifyCheckObj.isVerified) {
+				setVerified(false);
+				setCodes({ codes: [] });
 				return;
 			}
 			fetch(verifyCheckObj.verifiedSrcUrl).then((resFile) => {

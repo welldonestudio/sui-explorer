@@ -19,6 +19,8 @@ export interface VerifyCheckResponse {
 	chainId: string;
 	packageId: string;
 	isVerified: boolean;
+	isRemix: boolean;
+	isSrcUploaded: boolean;
 	verifiedSrcUrl: string;
 }
 interface VerifyRegisterProps {
@@ -34,6 +36,7 @@ interface VerificationResponse {
 	packageId: string;
 	isVerified: boolean;
 	moduleResults: ModuleResult[];
+	isRemix?: boolean;
 	errMsg?: string;
 }
 interface ModuleResult {
@@ -51,7 +54,7 @@ function VerifyRegister({ id, modules, setCodes, verified, setVerified }: Verify
 	const modulenames = modules?.map(([name]) => name);
 	const [searchParams, setSearchParams] = useSearchParamsMerged();
 	const [query, setQuery] = useState('');
-	const [version, setVersion] = useState<string>('');
+	const [version, setVersion] = useState<string>('v1.3.0');
 	const [isLoadingWithoutFile, setIsLoadingWithoutFile] = useState<boolean>(false);
 	const [isLoadingWithFile, setIsLoadingWithFile] = useState<boolean>(false);
 	const [errMsgWithoutFile, setErrMsgWithoutFile] = useState<string>('');
@@ -80,9 +83,10 @@ function VerifyRegister({ id, modules, setCodes, verified, setVerified }: Verify
 		})
 			.then((res) => {
 				const verificationRes = res as VerificationResponse;
-				console.log('verificationRes', verificationRes);
+				console.log('remix verificationRes', verificationRes);
 				setVerified(verificationRes.isVerified);
 				setIsLoadingWithoutFile(false);
+
 				if (verificationRes.errMsg) {
 					setErrMsgWithoutFile(verificationRes.errMsg);
 				}
@@ -114,7 +118,7 @@ function VerifyRegister({ id, modules, setCodes, verified, setVerified }: Verify
 				})
 					.then((res) => {
 						const verificationRes = res as VerificationResponse;
-						console.log('verificationRes', verificationRes);
+						console.log('file verificationRes', verificationRes);
 						setVerified(verificationRes.isVerified);
 						setIsLoadingWithFile(false);
 
@@ -123,7 +127,10 @@ function VerifyRegister({ id, modules, setCodes, verified, setVerified }: Verify
 							return;
 						}
 
-						// todo: remove
+						/*if (!verificationRes.isVerified) {
+							return;
+						}
+						// todo: remove check
 						files[0].arrayBuffer().then((arrayBuffer) => {
 							const blob = new Blob([arrayBuffer], { type: 'application/zip' });
 							const zip = new JSZip();
@@ -150,7 +157,7 @@ function VerifyRegister({ id, modules, setCodes, verified, setVerified }: Verify
 									});
 								});
 							});
-						});
+						});*/
 					})
 					.catch((e) => {
 						console.error(e);
@@ -274,13 +281,13 @@ function VerifyRegister({ id, modules, setCodes, verified, setVerified }: Verify
 										}}
 									>
 										<option value="">[Please Select]</option>
-										<option value="v1.3.1">v1.3.1+commit.a2af559</option>
+										{/*<option value="v1.3.1">v1.3.1+commit.a2af559</option>*/}
 										<option value="v1.3.0">v1.3.0+commit.434eb19</option>
-										<option value="v1.2.1">v1.2.1+commit.8b68151</option>
-										<option value="v1.2.0">v1.2.0+commit.7ef210c</option>
-										<option value="v1.1.1">v1.1.1+commit.536412e</option>
-										<option value="v1.1.0">v1.1.0+commit.4c9993f</option>
-										<option value="v1.0.8">v1.0.8+commit.97d65f2</option>
+										{/*<option value="v1.2.1">v1.2.1+commit.8b68151</option>*/}
+										{/*<option value="v1.2.0">v1.2.0+commit.7ef210c</option>*/}
+										{/*<option value="v1.1.1">v1.1.1+commit.536412e</option>*/}
+										{/*<option value="v1.1.0">v1.1.0+commit.4c9993f</option>*/}
+										{/*<option value="v1.0.8">v1.0.8+commit.97d65f2</option>*/}
 									</select>
 								</div>
 								{/*<div className="mb-0.5 mt-3 break-words text-issue-dark">*/}

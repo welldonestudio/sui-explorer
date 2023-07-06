@@ -24,6 +24,7 @@ export default defineConfig({
 	build: {
 		// Set the output directory to match what CRA uses:
 		outDir: '../../docs', // for github pages
+		// outDir: 'build',
 		sourcemap: true,
 	},
 	resolve: {
