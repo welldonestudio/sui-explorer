@@ -126,38 +126,6 @@ function VerifyRegister({ id, modules, setCodes, verified, setVerified }: Verify
 							setErrMsgWithFile(verificationRes.errMsg);
 							return;
 						}
-
-						/*if (!verificationRes.isVerified) {
-							return;
-						}
-						// todo: remove check
-						files[0].arrayBuffer().then((arrayBuffer) => {
-							const blob = new Blob([arrayBuffer], { type: 'application/zip' });
-							const zip = new JSZip();
-							zip.loadAsync(blob).then((unzipped) => {
-								const filePromises: any = [];
-								unzipped.forEach((relativePath: any, file: any) => {
-									if (!file.dir) {
-										const filePromise = file
-											.async('text')
-											.then((content: any) => ({ name: file.name, content: content }));
-										filePromises.push(filePromise);
-									}
-								});
-
-								Promise.all(filePromises).then((codes) => {
-									console.log('verified codes', codes);
-									// @ts-ignore
-									setCodes({
-										codes: codes.filter((code) => {
-											if (!code.name.includes('Move.toml' || 'Move.lock')) {
-												return code;
-											}
-										}),
-									});
-								});
-							});
-						});*/
 					})
 					.catch((e) => {
 						console.error(e);
